@@ -334,11 +334,7 @@ h1 {
   position: absolute;
   top: 0;
   right: -20%;
-  transform: translateY(-50%);
-  width: 45%;
-  height: 80vh;
-  z-index: 1;
-  pointer-events: auto;
+ 
 }
 
 /* Portfolio Sections */
