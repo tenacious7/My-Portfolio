@@ -1,128 +1,346 @@
 // Performance optimization for portfolio website
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize AOS with reduced animations for better performance
+  // Initialize AOS with optimized settings
   AOS.init({
-    once: true, // Only animate elements once
-    disable: 'mobile', // Disable animations on mobile for better performance
-    duration: 800 // Reduce animation duration for better performance
+    once: true,
+    disable: function() {
+      return window.innerWidth < 768; // Disable on mobile for better performance
+    },
+    duration: 600,
+    easing: 'ease-out-cubic',
+    offset: 50
   });
   
-  // Lazy load the 3D model only when needed
-  lazyLoadSpline();
-  
-  // Optimize project card animations using Intersection Observer
-  setupIntersectionObserver();
-  
-  // Throttle scroll events for better performance
-  setupScrollThrottling();
-  
-  // Reduce effects on low-end devices
-  checkDevicePerformance();
+  // Initialize all features
+  initializeLoader();
+  initializeSmoothScrolling();
+  initializeHeaderEffects();
+  initializeIntersectionObserver();
+  initializeSkillBars();
+  initializeFormHandling();
+  initializePerformanceOptimizations();
 });
 
-// Hide loader after 2 seconds
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    const loader = document.querySelector('.loader-container');
-    loader.classList.add('loader-hidden');
+// Enhanced loader with smooth transition
+function initializeLoader() {
+  const loader = document.querySelector('.loader-container');
+  
+  // Minimum loading time for smooth experience
+  const minLoadTime = 2000;
+  const startTime = Date.now();
+  
+  window.addEventListener('load', () => {
+    const elapsedTime = Date.now() - startTime;
+    const remainingTime = Math.max(0, minLoadTime - elapsedTime);
     
-    // Remove loader from DOM after transition completes
-    loader.addEventListener('transitionend', () => {
-      if (document.body.contains(loader)) {
-        document.body.removeChild(loader);
-      }
-    });
-  }, 3000); // Show loader for 2 seconds
-});
-
-// Lazy load Spline 3D viewer
-function lazyLoadSpline() {
-  const splineViewer = document.querySelector('.robot-3d');
-  
-  if (!splineViewer) return;
-  
-  // Only load the 3D model when scrolled to view
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const url = splineViewer.getAttribute('data-url');
-        if (url) {
-          splineViewer.setAttribute('url', url);
-          splineViewer.removeAttribute('data-url');
+    setTimeout(() => {
+      loader.classList.add('loader-hidden');
+      
+      // Remove loader from DOM after transition
+      loader.addEventListener('transitionend', () => {
+        if (document.body.contains(loader)) {
+          document.body.removeChild(loader);
         }
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  
-  splineViewer.setAttribute('data-url', splineViewer.getAttribute('url'));
-  splineViewer.removeAttribute('url');
-  observer.observe(splineViewer);
+      });
+    }, remainingTime);
+  });
 }
 
-// Use Intersection Observer for better performance
-function setupIntersectionObserver() {
-  const projectCards = document.querySelectorAll('.project-card');
-  const statItems = document.querySelectorAll('.stat-item');
-  const sections = document.querySelectorAll('.portfolio-section');
+// Smooth scrolling for navigation links
+function initializeSmoothScrolling() {
+  const navLinks = document.querySelectorAll('nav a[href^="#"], .btn[href^="#"]');
+  
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = link.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      
+      if (targetElement) {
+        const headerHeight = document.querySelector('header').offsetHeight;
+        const targetPosition = targetElement.offsetTop - headerHeight - 20;
+        
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+}
+
+// Header scroll effects
+function initializeHeaderEffects() {
+  const header = document.querySelector('header');
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+  
+  function updateHeader() {
+    const scrollY = window.scrollY;
+    
+    if (scrollY > 100) {
+      header.style.background = 'rgba(0, 0, 0, 0.95)';
+      header.style.backdropFilter = 'blur(20px)';
+    } else {
+      header.style.background = 'rgba(0, 0, 0, 0.8)';
+      header.style.backdropFilter = 'blur(20px)';
+    }
+    
+    // Hide header on scroll down, show on scroll up
+    if (scrollY > lastScrollY && scrollY > 200) {
+      header.style.transform = 'translateY(-100%)';
+    } else {
+      header.style.transform = 'translateY(0)';
+    }
+    
+    lastScrollY = scrollY;
+    ticking = false;
+  }
+  
+  function requestTick() {
+    if (!ticking) {
+      requestAnimationFrame(updateHeader);
+      ticking = true;
+    }
+  }
+  
+  window.addEventListener('scroll', requestTick, { passive: true });
+}
+
+// Enhanced Intersection Observer for animations
+function initializeIntersectionObserver() {
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
   
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('in-view');
+        
+        // Trigger specific animations based on element type
+        if (entry.target.classList.contains('stat-item')) {
+          animateCounter(entry.target);
+        }
+        
+        if (entry.target.classList.contains('skill-level')) {
+          animateSkillBar(entry.target);
+        }
+        
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
+  }, observerOptions);
   
   // Observe elements
-  projectCards.forEach(card => observer.observe(card));
-  statItems.forEach(item => observer.observe(item));
-  sections.forEach(section => observer.observe(section));
+  const elementsToObserve = document.querySelectorAll(
+    '.stat-item, .project-item, .timeline-item, .contact-item, .skill-level'
+  );
+  
+  elementsToObserve.forEach(el => observer.observe(el));
 }
 
-// Throttle scroll event for better performance
-function setupScrollThrottling() {
-  let lastScrollTime = 0;
-  const scrollThreshold = 50; // ms between scroll events
+// Animate skill bars
+function initializeSkillBars() {
+  const skillBars = document.querySelectorAll('.skill-level');
   
-  window.addEventListener('scroll', function() {
-    const now = Date.now();
-    if (now - lastScrollTime < scrollThreshold) return;
-    lastScrollTime = now;
-    
-    // Handle any scroll-based animations here
+  skillBars.forEach(bar => {
+    const width = bar.style.width;
+    bar.style.width = '0%';
+    bar.dataset.width = width;
   });
 }
 
-// Detect device performance and reduce effects if needed
-function checkDevicePerformance() {
-  const isLowEndDevice = 
-    navigator.hardwareConcurrency <= 4 || // 4 or fewer CPU cores
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); // Mobile device
+function animateSkillBar(skillBar) {
+  const targetWidth = skillBar.dataset.width;
+  let currentWidth = 0;
+  const increment = parseInt(targetWidth) / 60; // 60 frames for 1 second at 60fps
+  
+  function animate() {
+    currentWidth += increment;
+    if (currentWidth >= parseInt(targetWidth)) {
+      skillBar.style.width = targetWidth;
+      return;
+    }
+    skillBar.style.width = currentWidth + '%';
+    requestAnimationFrame(animate);
+  }
+  
+  animate();
+}
+
+// Animate counters
+function animateCounter(statItem) {
+  const counter = statItem.querySelector('h3');
+  const target = parseInt(counter.textContent);
+  let current = 0;
+  const increment = target / 60; // 60 frames for 1 second
+  
+  function updateCounter() {
+    current += increment;
+    if (current >= target) {
+      counter.textContent = target + '+';
+      return;
+    }
+    counter.textContent = Math.floor(current) + '+';
+    requestAnimationFrame(updateCounter);
+  }
+  
+  updateCounter();
+}
+
+// Enhanced form handling
+function initializeFormHandling() {
+  const form = document.querySelector('.contact-form');
+  const inputs = form.querySelectorAll('input, textarea');
+  
+  // Add floating label effect
+  inputs.forEach(input => {
+    input.addEventListener('focus', () => {
+      input.parentElement.classList.add('focused');
+    });
     
-  if (isLowEndDevice) {
+    input.addEventListener('blur', () => {
+      if (!input.value) {
+        input.parentElement.classList.remove('focused');
+      }
+    });
+    
+    // Check if input has value on load
+    if (input.value) {
+      input.parentElement.classList.add('focused');
+    }
+  });
+  
+  // Form submission with validation
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('.send-message');
+    
+    // Add loading state
+    submitBtn.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    
+    // Simulate form submission (replace with actual form handling)
+    setTimeout(() => {
+      submitBtn.textContent = 'Message Sent!';
+      submitBtn.style.background = 'linear-gradient(45deg, #00ff00, #00cc00)';
+      
+      setTimeout(() => {
+        submitBtn.textContent = 'Send Message';
+        submitBtn.disabled = false;
+        submitBtn.style.background = 'linear-gradient(45deg, #7f00ff, #e100ff)';
+        form.reset();
+      }, 2000);
+    }, 1500);
+  });
+}
+
+// Performance optimizations
+function initializePerformanceOptimizations() {
+  // Lazy load images
+  const images = document.querySelectorAll('img[data-src]');
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+        imageObserver.unobserve(img);
+      }
+    });
+  });
+  
+  images.forEach(img => imageObserver.observe(img));
+  
+  // Optimize 3D model loading
+  const splineViewer = document.querySelector('.robot-3d');
+  if (splineViewer) {
+    const splineObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Load 3D model only when visible
+          if (!splineViewer.hasAttribute('url')) {
+            splineViewer.setAttribute('url', 'https://prod.spline.design/PKaBruzFCvVi3TEL/scene.splinecode');
+          }
+          splineObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    splineObserver.observe(splineViewer);
+  }
+  
+  // Reduce motion for users who prefer it
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.body.classList.add('reduced-motion');
-    reduceVisualEffects();
+  }
+  
+  // Optimize for low-end devices
+  if (navigator.hardwareConcurrency <= 4) {
+    document.body.classList.add('low-performance');
+    // Reduce particle effects, complex animations, etc.
   }
 }
 
-// Reduce visual effects for better performance
-function reduceVisualEffects() {
-  // Remove expensive backdrop-filters
-  document.querySelectorAll('.project-card, header, .project-tags span').forEach(el => {
-    el.style.backdropFilter = 'none';
-    el.style.webkitBackdropFilter = 'none';
-  });
+// Throttle function for performance
+function throttle(func, limit) {
+  let inThrottle;
+  return function() {
+    const args = arguments;
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// Debounce function for performance
+function debounce(func, wait, immediate) {
+  let timeout;
+  return function() {
+    const context = this, args = arguments;
+    const later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+
+// Add resize handler for responsive adjustments
+window.addEventListener('resize', debounce(() => {
+  // Recalculate positions and sizes if needed
+  const splineViewer = document.querySelector('.robot-3d');
+  if (splineViewer && window.innerWidth <= 768) {
+    splineViewer.style.transform = 'scale(0.8)';
+  } else if (splineViewer) {
+    splineViewer.style.transform = 'scale(1)';
+  }
+}, 250));
+
+// Add touch support for mobile devices
+if ('ontouchstart' in window) {
+  document.body.classList.add('touch-device');
   
-  // Simplify animations
-  document.querySelectorAll('.tag-box').forEach(el => {
-    el.style.animation = 'none';
-  });
-  
-  // Reduce shadow effects
-  document.querySelectorAll('[style*="box-shadow"]').forEach(el => {
-    el.style.boxShadow = 'none';
+  // Add touch feedback for buttons
+  const buttons = document.querySelectorAll('.btn, .project-link, .social-icon');
+  buttons.forEach(btn => {
+    btn.addEventListener('touchstart', () => {
+      btn.style.transform = 'scale(0.95)';
+    });
+    
+    btn.addEventListener('touchend', () => {
+      btn.style.transform = '';
+    });
   });
 }
