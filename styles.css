@@ -332,8 +332,8 @@ h1 {
 /* 3D Model positioning to match reference */
 .robot-3d {
   position: absolute;
-  top: 50%;
-  right: 5%;
+  top: 0;
+  right: -20%;
   transform: translateY(-50%);
   width: 45%;
   height: 80vh;
