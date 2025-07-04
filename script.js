@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize all features
   initializeLoader();
   initializeSmoothScrolling();
-  initializeHeaderEffects();
+  initializeGlassmorphismHeader();
   initializeIntersectionObserver();
   initializeSkillBars();
   initializeFormHandling();
@@ -70,8 +70,8 @@ function initializeSmoothScrolling() {
   });
 }
 
-// Header scroll effects
-function initializeHeaderEffects() {
+// Enhanced glassmorphism header effects
+function initializeGlassmorphismHeader() {
   const header = document.querySelector('header');
   let lastScrollY = window.scrollY;
   let ticking = false;
@@ -79,19 +79,20 @@ function initializeHeaderEffects() {
   function updateHeader() {
     const scrollY = window.scrollY;
     
+    // Enhanced glassmorphism effect on scroll
     if (scrollY > 100) {
-      header.style.background = 'rgba(0, 0, 0, 0.95)';
-      header.style.backdropFilter = 'blur(20px)';
+      header.classList.add('scrolled');
     } else {
-      header.style.background = 'rgba(0, 0, 0, 0.8)';
-      header.style.backdropFilter = 'blur(20px)';
+      header.classList.remove('scrolled');
     }
     
-    // Hide header on scroll down, show on scroll up
+    // Hide header on scroll down, show on scroll up (improved)
     if (scrollY > lastScrollY && scrollY > 200) {
       header.style.transform = 'translateY(-100%)';
+      header.style.opacity = '0';
     } else {
       header.style.transform = 'translateY(0)';
+      header.style.opacity = '1';
     }
     
     lastScrollY = scrollY;
@@ -321,10 +322,8 @@ function debounce(func, wait, immediate) {
 window.addEventListener('resize', debounce(() => {
   // Recalculate positions and sizes if needed
   const splineViewer = document.querySelector('.robot-3d');
-  if (splineViewer && window.innerWidth <= 768) {
-    splineViewer.style.transform = 'scale(0.8)';
-  } else if (splineViewer) {
-    splineViewer.style.transform = 'scale(1)';
+  if (splineViewer && window.innerWidth <= 992) {
+    // Mobile adjustments handled by CSS
   }
 }, 250));
 
@@ -344,3 +343,24 @@ if ('ontouchstart' in window) {
     });
   });
 }
+
+// Enhanced 3D model interaction
+function enhance3DModelInteraction() {
+  const splineViewer = document.querySelector('.robot-3d');
+  
+  if (splineViewer) {
+    // Add loading state
+    splineViewer.addEventListener('load', () => {
+      splineViewer.style.opacity = '1';
+    });
+    
+    // Add error handling
+    splineViewer.addEventListener('error', () => {
+      console.warn('3D model failed to load');
+      splineViewer.style.display = 'none';
+    });
+  }
+}
+
+// Initialize 3D model enhancements
+document.addEventListener('DOMContentLoaded', enhance3DModelInteraction);
