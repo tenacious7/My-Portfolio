@@ -411,47 +411,6 @@ h1 {
   animation-delay: 0.2s;
 }
 
-.about-paragraph {
-  text-align: left;
-  font-size: clamp(1rem, 1.5vw, 1.1rem);
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
-  padding: 0.8rem 0;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.6s ease forwards;
-  
-  /* Base styling */
-  color: #a8b2d1;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-  letter-spacing: 0.02em;
-  
-  /* Smooth transitions for all effects */
-  transition: all 0.3s ease;
-  cursor: default;
-}
-
-.about-paragraph:hover {
-  /* Color change */
-  color: #e7e7e7;
-  
-  /* Letter spacing animation */
-  letter-spacing: 0.05em;
-  
-  /* Enhanced drop shadow */
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  
-  /* Subtle movement */
-  transform: translateX(5px);
-  
-  /* Soft glow effect */
-  text-shadow: 
-    2px 2px 4px rgba(0, 0, 0, 0.2),
-    0 0 10px rgba(127, 0, 255, 0.4),
-    0 0 20px rgba(127, 0, 255, 0.2),
-    0 0 30px rgba(127, 0, 255, 0.1);
-}
-
 @keyframes fadeInUp {
   to {
     opacity: 1;
