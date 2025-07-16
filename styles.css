@@ -391,10 +391,15 @@ h1 {
 
 /* About Section */
 .about-container {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 4rem;
-  align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.about-text {
+  max-width: 900px;
+  width: 100%;
 }
 
 .about-text p {
@@ -416,40 +421,6 @@ h1 {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.about-stats {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-
-.stat-item {
-  background: rgba(25, 25, 25, 0.8);
-  border: 1px solid rgba(127, 0, 255, 0.3);
-  border-radius: 15px;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.stat-item:hover {
-  transform: translateY(-10px) scale(1.05);
-  box-shadow: 0 20px 40px rgba(127, 0, 255, 0.3);
-  border-color: rgba(127, 0, 255, 0.6);
-}
-
-.stat-item h3 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  color: #e100ff;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 0 10px #7f00ff;
-}
-
-.stat-item p {
-  color: #a8b2d1;
-  font-size: clamp(0.9rem, 1.2vw, 1rem);
 }
 
 /* Projects Section */
@@ -1051,7 +1022,6 @@ footer {
   .skills-container,
   .resume-container,
   .contact-container {
-    grid-template-columns: 1fr;
     gap: 3rem;
   }
   
@@ -1066,8 +1036,7 @@ footer {
   }
   
   .about-stats {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    display: none;
   }
   
   nav {
@@ -1154,8 +1123,7 @@ footer {
   }
   
   .about-stats {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    display: none;
   }
   
   .project-item {

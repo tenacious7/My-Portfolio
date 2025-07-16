@@ -122,9 +122,6 @@ function initializeIntersectionObserver() {
         entry.target.classList.add('in-view');
         
         // Trigger specific animations based on element type
-        if (entry.target.classList.contains('stat-item')) {
-          animateCounter(entry.target);
-        }
         
         if (entry.target.classList.contains('skill-level')) {
           animateSkillBar(entry.target);
@@ -137,7 +134,7 @@ function initializeIntersectionObserver() {
   
   // Observe elements
   const elementsToObserve = document.querySelectorAll(
-    '.stat-item, .project-item, .timeline-item, .contact-item, .skill-level'
+    '.project-item, .timeline-item, .contact-item, .skill-level'
   );
   
   elementsToObserve.forEach(el => observer.observe(el));
@@ -172,25 +169,6 @@ function animateSkillBar(skillBar) {
   animate();
 }
 
-// Animate counters
-function animateCounter(statItem) {
-  const counter = statItem.querySelector('h3');
-  const target = parseInt(counter.textContent);
-  let current = 0;
-  const increment = target / 60; // 60 frames for 1 second
-  
-  function updateCounter() {
-    current += increment;
-    if (current >= target) {
-      counter.textContent = target + '+';
-      return;
-    }
-    counter.textContent = Math.floor(current) + '+';
-    requestAnimationFrame(updateCounter);
-  }
-  
-  updateCounter();
-}
 
 // Enhanced form handling
 function initializeFormHandling() {
