@@ -548,8 +548,8 @@ h1 {
 
 /* Skills Section */
 .skills-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 4rem;
 }
 
@@ -1059,7 +1059,7 @@ footer {
     padding: 0.6rem 1.5rem;
     height: 60px;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 2rem;
   }
   
   #home {
