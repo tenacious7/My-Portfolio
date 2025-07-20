@@ -748,7 +748,7 @@ h1 {
 
 .social-buttons {
   display: flex;
-  gap: 2rem;
+  gap: 3rem;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -861,6 +861,24 @@ h1 {
   color: #333;
 }
 
+/* Email Styling */
+.social-btn.email {
+  color: #ea4335;
+}
+
+.social-btn.email:hover {
+  background: linear-gradient(135deg, #ea4335, #d33b2c);
+  color: white;
+  transform: translateY(-8px) scale(1.1);
+  box-shadow: 0 20px 40px rgba(234, 67, 53, 0.4);
+}
+
+.social-btn.email:hover .social-text {
+  opacity: 1;
+  bottom: -35px;
+  color: #ea4335;
+}
+
 /* Pulse Animation */
 .social-btn:hover .social-icon {
   animation: pulse 0.6s ease-in-out;
@@ -906,6 +924,10 @@ h1 {
 
 .social-btn:nth-child(3) {
   animation-delay: 1s;
+}
+
+.social-btn:nth-child(4) {
+  animation-delay: 1.5s;
 }
 
 @keyframes float {
@@ -1346,7 +1368,7 @@ footer {
   }
   
   .social-buttons {
-    gap: 1.5rem;
+    gap: 2rem;
   }
   
   .social-btn {
@@ -1529,7 +1551,7 @@ footer {
   }
   
   .social-buttons {
-    gap: 1rem;
+    gap: 1.5rem;
   }
   
   .social-btn {
