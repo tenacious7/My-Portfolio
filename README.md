@@ -1,4 +1,4 @@
-# 🚀 Brijesh Portfolio
+# 🚀 My Portfolio
 
 <div align="center">
   <img src="assets/favicon.png" alt="Brijesh Logo" width="80" height="80" style="border-radius: 50%; margin-bottom: 20px;">
@@ -65,7 +65,7 @@ A modern, interactive personal portfolio website showcasing my journey as a Comp
 ## 🎥 Demo & Screenshots
 
 ### 🌐 **Live Demo**
-👉 **[View Live Portfolio](https://brijesh-portfolio.netlify.app)**
+👉 **[View Live Portfolio]([https://brijesh-portfolio.netlify.app](https://tranquil-froyo-c3fb63.netlify.app/))**
 
 ### 📸 **Screenshots**
 
