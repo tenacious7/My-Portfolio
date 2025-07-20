@@ -1,6 +1,7 @@
 # 🚀 Brijesh Portfolio
 
 <div align="center">
+  <img src="assets/favicon.png" alt="Brijesh Logo" width="80" height="80" style="border-radius: 50%; margin-bottom: 20px;">
   <img src="assets/gradient.png" alt="Portfolio Banner" width="100%" height="200" style="object-fit: cover; border-radius: 10px;">
   
   [![Website](https://img.shields.io/website?url=https%3A%2F%2Fbrijesh-portfolio.netlify.app&style=for-the-badge)](https://brijesh-portfolio.netlify.app)
