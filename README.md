@@ -65,7 +65,7 @@ A modern, interactive personal portfolio website showcasing my journey as a Comp
 ## 🎥 Demo & Screenshots
 
 ### 🌐 **Live Demo**
-👉 **[View Live Portfolio]([https://brijesh-portfolio.netlify.app](https://tranquil-froyo-c3fb63.netlify.app/))**
+👉 **[View Live Portfolio]([https://brijesh-portfolio.netlify.app](https://tranquil-froyo-c3fb63.netlify.app/)**
 
 ### 📸 **Screenshots**
 
