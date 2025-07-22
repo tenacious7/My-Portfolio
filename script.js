@@ -26,24 +26,39 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeLoader() {
   const loader = document.querySelector('.loader-container');
   
-  // Minimum loading time for smooth experience
-  const minLoadTime = 2000;
+  // Maximum loading time - force hide after 3 seconds
+  const maxLoadTime = 3000;
   const startTime = Date.now();
+  
+  // Force hide loader after 3 seconds regardless of load status
+  const forceHideTimeout = setTimeout(() => {
+    hideLoader();
+  }, maxLoadTime);
+  
+  function hideLoader() {
+    // Clear the timeout to prevent double execution
+    clearTimeout(forceHideTimeout);
+    
+    loader.classList.add('loader-hidden');
+    
+    // Remove loader from DOM after transition
+    loader.addEventListener('transitionend', () => {
+      if (document.body.contains(loader)) {
+        document.body.removeChild(loader);
+      }
+    });
+  }
   
   window.addEventListener('load', () => {
     const elapsedTime = Date.now() - startTime;
-    const remainingTime = Math.max(0, minLoadTime - elapsedTime);
+    const remainingTime = Math.max(0, 1500 - elapsedTime); // Minimum 1.5s for smooth experience
     
-    setTimeout(() => {
-      loader.classList.add('loader-hidden');
-      
-      // Remove loader from DOM after transition
-      loader.addEventListener('transitionend', () => {
-        if (document.body.contains(loader)) {
-          document.body.removeChild(loader);
-        }
-      });
-    }, remainingTime);
+    // Only hide if we haven't already forced hide
+    if (!loader.classList.contains('loader-hidden')) {
+      setTimeout(() => {
+        hideLoader();
+      }, remainingTime);
+    }
   });
 }
 
