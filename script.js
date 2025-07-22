@@ -1,16 +1,18 @@
-// Performance optimization for portfolio website
+// Performance optimization for portfolio website - NETLIFY OPTIMIZED
 
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize AOS with optimized settings
-  AOS.init({
-    once: true,
-    disable: function() {
-      return window.innerWidth < 768; // Disable on mobile for better performance
-    },
-    duration: 600,
-    easing: 'ease-out-cubic',
-    offset: 50
-  });
+  if (typeof AOS !== 'undefined') {
+    AOS.init({
+      once: true,
+      disable: function() {
+        return window.innerWidth < 768; // Disable on mobile for better performance
+      },
+      duration: 600,
+      easing: 'ease-out-cubic',
+      offset: 50
+    });
+  }
   
   // Initialize all features
   initializeLoader();
@@ -22,44 +24,91 @@ document.addEventListener('DOMContentLoaded', function() {
   initializePerformanceOptimizations();
 });
 
-// Enhanced loader with smooth transition
+// FIXED: Enhanced loader with guaranteed hide mechanism
 function initializeLoader() {
   const loader = document.querySelector('.loader-container');
   
-  // Maximum loading time - force hide after 3 seconds
-  const maxLoadTime = 3000;
+  // If no loader element exists, skip
+  if (!loader) {
+    console.warn('Loader element not found - skipping loader initialization');
+    return;
+  }
+  
+  // Reduced maximum loading time for better UX
+  const maxLoadTime = 2000; // Reduced from 3000ms
+  const minLoadTime = 800;  // Minimum time to show loader
   const startTime = Date.now();
   
-  // Force hide loader after 3 seconds regardless of load status
+  let loaderHidden = false; // Track if loader is already hidden
+  
+  function hideLoader() {
+    // Prevent multiple executions
+    if (loaderHidden) return;
+    loaderHidden = true;
+    
+    console.log('Hiding loader...');
+    
+    // Add fade-out class for smooth transition
+    loader.classList.add('loader-hidden');
+    
+    // FALLBACK: Force remove after transition time
+    setTimeout(() => {
+      if (loader && document.body.contains(loader)) {
+        loader.style.display = 'none';
+        // Optionally remove from DOM
+        loader.remove();
+      }
+    }, 500); // Give 500ms for CSS transition
+    
+    // Also listen for transition end
+    loader.addEventListener('transitionend', () => {
+      if (loader && document.body.contains(loader)) {
+        loader.style.display = 'none';
+        loader.remove();
+      }
+    }, { once: true });
+  }
+  
+  // CRITICAL: Force hide after max time (Netlify safety net)
   const forceHideTimeout = setTimeout(() => {
+    console.log('Force hiding loader after max time');
     hideLoader();
   }, maxLoadTime);
   
-  function hideLoader() {
-    // Clear the timeout to prevent double execution
-    clearTimeout(forceHideTimeout);
+  // IMPROVED: Better load detection for Netlify
+  function checkIfReady() {
+    const elapsedTime = Date.now() - startTime;
     
-    loader.classList.add('loader-hidden');
-    
-    // Remove loader from DOM after transition
-    loader.addEventListener('transitionend', () => {
-      if (document.body.contains(loader)) {
-        document.body.removeChild(loader);
-      }
-    });
+    // Ensure minimum loading time for smooth UX
+    if (elapsedTime >= minLoadTime) {
+      clearTimeout(forceHideTimeout);
+      hideLoader();
+    } else {
+      // Wait for minimum time
+      setTimeout(() => {
+        clearTimeout(forceHideTimeout);
+        hideLoader();
+      }, minLoadTime - elapsedTime);
+    }
   }
   
-  window.addEventListener('load', () => {
-    const elapsedTime = Date.now() - startTime;
-    const remainingTime = Math.max(0, 1500 - elapsedTime); // Minimum 1.5s for smooth experience
+  // Multiple triggers to ensure loader hides
+  window.addEventListener('load', checkIfReady);
+  
+  // NETLIFY FIX: Also check document ready state
+  if (document.readyState === 'complete') {
+    setTimeout(checkIfReady, 100);
+  }
+  
+  // ADDITIONAL SAFETY: Check if all critical resources are loaded
+  setTimeout(() => {
+    const images = document.querySelectorAll('img');
+    const loadedImages = Array.from(images).filter(img => img.complete);
     
-    // Only hide if we haven't already forced hide
-    if (!loader.classList.contains('loader-hidden')) {
-      setTimeout(() => {
-        hideLoader();
-      }, remainingTime);
+    if (images.length === 0 || loadedImages.length === images.length) {
+      checkIfReady();
     }
-  });
+  }, 1000);
 }
 
 // Smooth scrolling for navigation links
@@ -73,7 +122,8 @@ function initializeSmoothScrolling() {
       const targetElement = document.querySelector(targetId);
       
       if (targetElement) {
-        const headerHeight = document.querySelector('header').offsetHeight;
+        const header = document.querySelector('header');
+        const headerHeight = header ? header.offsetHeight : 0;
         const targetPosition = targetElement.offsetTop - headerHeight - 20;
         
         window.scrollTo({
@@ -88,6 +138,8 @@ function initializeSmoothScrolling() {
 // Enhanced glassmorphism header effects
 function initializeGlassmorphismHeader() {
   const header = document.querySelector('header');
+  if (!header) return;
+  
   let lastScrollY = window.scrollY;
   let ticking = false;
   
@@ -126,6 +178,12 @@ function initializeGlassmorphismHeader() {
 
 // Enhanced Intersection Observer for animations
 function initializeIntersectionObserver() {
+  // Check if IntersectionObserver is supported
+  if (!window.IntersectionObserver) {
+    console.warn('IntersectionObserver not supported');
+    return;
+  }
+  
   const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -137,7 +195,6 @@ function initializeIntersectionObserver() {
         entry.target.classList.add('in-view');
         
         // Trigger specific animations based on element type
-        
         if (entry.target.classList.contains('skill-level')) {
           animateSkillBar(entry.target);
         }
@@ -147,12 +204,16 @@ function initializeIntersectionObserver() {
     });
   }, observerOptions);
   
-  // Observe elements
-  const elementsToObserve = document.querySelectorAll(
-    '.project-item, .timeline-item, .contact-item, .skill-level'
-  );
-  
-  elementsToObserve.forEach(el => observer.observe(el));
+  // Observe elements with error handling
+  try {
+    const elementsToObserve = document.querySelectorAll(
+      '.project-item, .timeline-item, .contact-item, .skill-level'
+    );
+    
+    elementsToObserve.forEach(el => observer.observe(el));
+  } catch (error) {
+    console.warn('Error setting up intersection observer:', error);
+  }
 }
 
 // Animate skill bars
@@ -160,20 +221,25 @@ function initializeSkillBars() {
   const skillBars = document.querySelectorAll('.skill-level');
   
   skillBars.forEach(bar => {
-    const width = bar.style.width;
-    bar.style.width = '0%';
-    bar.dataset.width = width;
+    const width = bar.style.width || bar.getAttribute('data-width');
+    if (width) {
+      bar.style.width = '0%';
+      bar.dataset.width = width;
+    }
   });
 }
 
 function animateSkillBar(skillBar) {
   const targetWidth = skillBar.dataset.width;
+  if (!targetWidth) return;
+  
   let currentWidth = 0;
-  const increment = parseInt(targetWidth) / 60; // 60 frames for 1 second at 60fps
+  const target = parseInt(targetWidth);
+  const increment = target / 60; // 60 frames for 1 second at 60fps
   
   function animate() {
     currentWidth += increment;
-    if (currentWidth >= parseInt(targetWidth)) {
+    if (currentWidth >= target) {
       skillBar.style.width = targetWidth;
       return;
     }
@@ -184,10 +250,11 @@ function animateSkillBar(skillBar) {
   animate();
 }
 
-
 // Enhanced form handling
 function initializeFormHandling() {
   const form = document.querySelector('.contact-form');
+  if (!form) return;
+  
   const inputs = form.querySelectorAll('input, textarea');
   
   // Add floating label effect
@@ -213,9 +280,12 @@ function initializeFormHandling() {
     e.preventDefault();
     
     const formData = new FormData(form);
-    const submitBtn = form.querySelector('.send-message');
+    const submitBtn = form.querySelector('.send-message') || form.querySelector('button[type="submit"]');
+    
+    if (!submitBtn) return;
     
     // Add loading state
+    const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Sending...';
     submitBtn.disabled = true;
     
@@ -225,7 +295,7 @@ function initializeFormHandling() {
       submitBtn.style.background = 'linear-gradient(45deg, #00ff00, #00cc00)';
       
       setTimeout(() => {
-        submitBtn.textContent = 'Send Message';
+        submitBtn.textContent = originalText;
         submitBtn.disabled = false;
         submitBtn.style.background = 'linear-gradient(45deg, #7f00ff, #e100ff)';
         form.reset();
@@ -236,22 +306,31 @@ function initializeFormHandling() {
 
 // Performance optimizations
 function initializePerformanceOptimizations() {
-  // Lazy load images
+  // Lazy load images with fallback
   const images = document.querySelectorAll('img[data-src]');
-  const imageObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target;
-        img.src = img.dataset.src;
-        img.removeAttribute('data-src');
-        imageObserver.unobserve(img);
-      }
+  
+  if (window.IntersectionObserver && images.length > 0) {
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+          imageObserver.unobserve(img);
+        }
+      });
     });
-  });
+    
+    images.forEach(img => imageObserver.observe(img));
+  } else {
+    // Fallback: load all images immediately
+    images.forEach(img => {
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    });
+  }
   
-  images.forEach(img => imageObserver.observe(img));
-  
-  // Optimize 3D model loading
+  // NETLIFY OPTIMIZED: 3D model loading with better error handling
   const splineViewer = document.querySelector('.robot-3d');
   if (splineViewer) {
     const splineObserver = new IntersectionObserver((entries) => {
@@ -259,7 +338,15 @@ function initializePerformanceOptimizations() {
         if (entry.isIntersecting) {
           // Load 3D model only when visible
           if (!splineViewer.hasAttribute('url')) {
-            splineViewer.setAttribute('url', 'https://prod.spline.design/PKaBruzFCvVi3TEL/scene.splinecode');
+            const modelUrl = 'https://prod.spline.design/PKaBruzFCvVi3TEL/scene.splinecode';
+            
+            // Add error handling for 3D model
+            splineViewer.addEventListener('error', () => {
+              console.warn('3D model failed to load');
+              splineViewer.style.display = 'none';
+            });
+            
+            splineViewer.setAttribute('url', modelUrl);
           }
           splineObserver.unobserve(entry.target);
         }
@@ -270,14 +357,13 @@ function initializePerformanceOptimizations() {
   }
   
   // Reduce motion for users who prefer it
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.body.classList.add('reduced-motion');
   }
   
   // Optimize for low-end devices
-  if (navigator.hardwareConcurrency <= 4) {
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) {
     document.body.classList.add('low-performance');
-    // Reduce particle effects, complex animations, etc.
   }
 }
 
@@ -329,11 +415,11 @@ if ('ontouchstart' in window) {
   buttons.forEach(btn => {
     btn.addEventListener('touchstart', () => {
       btn.style.transform = 'scale(0.95)';
-    });
+    }, { passive: true });
     
     btn.addEventListener('touchend', () => {
       btn.style.transform = '';
-    });
+    }, { passive: true });
   });
 }
 
@@ -355,5 +441,11 @@ function enhance3DModelInteraction() {
   }
 }
 
-// Initialize 3D model enhancements
-document.addEventListener('DOMContentLoaded', enhance3DModelInteraction);
+// NETLIFY DEPLOYMENT FIX: Ensure everything runs even if DOM is already ready
+if (document.readyState === 'loading') {
+  // DOM is still loading
+  document.addEventListener('DOMContentLoaded', enhance3DModelInteraction);
+} else {
+  // DOM is already ready
+  enhance3DModelInteraction();
+}
