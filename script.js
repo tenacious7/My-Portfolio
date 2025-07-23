@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Initialize all features
-  initializeLoader();
+  //initializeLoader();
   initializeSmoothScrolling();
   initializeGlassmorphismHeader();
   initializeIntersectionObserver();
