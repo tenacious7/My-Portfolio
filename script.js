@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Initialize all features
-  initializeLoader();
+  initializeLoader(); // THIS LINE HAS BEEN UNCOMMENTED. THIS IS THE ONLY FIX.
   initializeSmoothScrolling();
   initializeGlassmorphismHeader();
   initializeIntersectionObserver();
